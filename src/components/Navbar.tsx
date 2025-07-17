@@ -1,4 +1,6 @@
+import { useAuth } from "@/auth/AuthContext"
 import { Button } from "./ui/button"
+import { useNavigate } from "react-router"
 
 const Navbar = () => {
   
@@ -7,6 +9,12 @@ const Navbar = () => {
   }
  const Username : UserCredential = {
   name: "Anshuman"
+}
+const {logout} = useAuth();
+const navigate = useNavigate();
+ const handleLogout =() =>{
+    logout();
+    navigate('/signin');
  }
 
 
@@ -23,7 +31,7 @@ const Navbar = () => {
         <div className="proilename cursor-pointer">{Username.name}</div>
    
         
-        <Button className="bg-primary-foreground text-black hover:bg-accent border-[1px] text-sm ">Logout</Button>
+        <Button className="bg-primary-foreground text-black hover:bg-accent border-[1px] text-sm " onClick={handleLogout}>Logout</Button>
 
       
       </div>
