@@ -5,17 +5,40 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { useState } from "react"
+import { axios_service_get } from "@/services/axios-services"
 import { Eye, EyeOff } from 'lucide-react';
+import api from "@/api/axiosInstance"
+import { useAuth } from "@/auth/AuthContext"
+import { useNavigate } from "react-router"
 
 interface InputFormEmail {
   email: string,
   password: string
 }
+let res =axios_service_get("Employees");
+window.console.log(res);
+
 
 export default function SignInPage() {
   const { register, handleSubmit, formState: { errors } } = useForm<InputFormEmail>()
-  const onsubmit: SubmitHandler<InputFormEmail> = (data) => console.log(data)
-  const [pwdFlag, setPwdFlag] = useState(false)
+  const {login} = useAuth();
+  const navigate = useNavigate();
+  const onsubmit: SubmitHandler<InputFormEmail> = async (data) => {
+    try{
+      let username = data.email;
+      let password = data.password;
+      const res = await api.post('/Auth/login',{username,password});
+      const token = res.data.authToken;
+      login(token);
+      navigate('/allemployee');
+      console.log("Logged in")
+    }
+    catch (error){
+      console.log('Login failed',error);
+      alert('Invalid credantials')
+    }
+  }
+  const [pwdFlag, setPwdFlag] = useState(false) //flag to show password the eye icon
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl">
@@ -102,9 +125,9 @@ export default function SignInPage() {
                   Remember me
                 </Label>
               </div>
-              <a href="/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700 hover:underline">
+              {/* <a href="/forgot-password" className="text-sm text-cyan-600 hover:text-cyan-700 hover:underline">
                 Forgot password?
-              </a>
+              </a> */}
             </div>
             <Button
               type="submit"
@@ -115,9 +138,9 @@ export default function SignInPage() {
           </form>
 
           <div className="relative">
-            <div className="absolute inset-0 flex items-center">
+            {/* <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t border-slate-300" />
-            </div>
+            </div> */}
             {/* <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-white px-2 text-slate-500">Or continue with</span>
             </div> */}
@@ -154,7 +177,7 @@ export default function SignInPage() {
           </div> */}
 
           <div className="text-center text-sm text-slate-600">
-            {"Don't have an account? "}
+            {/* {"Don't have an account? "} */}
             {/* <a href="/signup" className="text-cyan-600 hover:text-cyan-700 hover:underline font-medium">
               Sign up here
             </a> */}
