@@ -9,7 +9,7 @@ const Home = () => {
       <nav className='sticky top-0 z-10'>
         <Navbar />
       </nav>
-      <div className='flex h-[100vh] '>
+      <div className='flex h-[calc(100vh-49px)] '>
             <Menubar />
        
             
