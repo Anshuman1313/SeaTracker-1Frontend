@@ -1,6 +1,6 @@
 import React from 'react'
 import { useState } from "react"
-import {  Clock, FileText, CheckCircle, XCircle, Send } from "lucide-react"
+import { Clock, FileText, CheckCircle, XCircle, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 
 const AttendenceLeave = () => {
-      const [attendanceStatus, setAttendanceStatus] = useState<"present" | "absent" | null>(null)
+  const [attendanceStatus, setAttendanceStatus] = useState<"present" | "absent" | null>(null)
   const [loginTime, setLoginTime] = useState("10:00")
   const [logoutTime, setLogoutTime] = useState("18:00")
   const [leaveType, setLeaveType] = useState("")
@@ -19,7 +19,7 @@ const AttendenceLeave = () => {
   const [endDate, setEndDate] = useState("")
   const [reason, setReason] = useState("")
   const [leaveSubmitted, setLeaveSubmitted] = useState(false)
-   const handleMarkAttendance = (status: "present" | "absent") => {
+  const handleMarkAttendance = (status: "present" | "absent") => {
     setAttendanceStatus(status)
   }
 
@@ -45,8 +45,9 @@ const AttendenceLeave = () => {
     day: "numeric",
   })
   return (
-    <div className='px-2 w-full h-[91vh] overflow-y-scroll '>
-       <main className="flex-1 p-8  ">
+    <div className="w-full overflow-y-scroll h-[calc(100vh-49px) ] overflow-y-scroll">
+      <div className='mx-[4vw]  h-[calc(100vh-49px)]'>
+        <main className="flex-1 p-8  ">
           <div className="max-w-6xl mx-auto">
             {/* Page Header */}
             <div className="mb-8">
@@ -70,11 +71,10 @@ const AttendenceLeave = () => {
                   <div className="flex space-x-4">
                     <Button
                       onClick={() => handleMarkAttendance("present")}
-                      className={`flex-1 h-12 ${
-                        attendanceStatus === "present"
+                      className={`flex-1 h-12 ${attendanceStatus === "present"
                           ? "bg-green-600 hover:bg-green-700"
                           : "bg-green-500 hover:bg-green-600"
-                      }`}
+                        }`}
                     >
                       <CheckCircle className="w-5 h-5 mr-2" />
                       Mark Present
@@ -245,6 +245,7 @@ const AttendenceLeave = () => {
             </div>
           </div>
         </main>
+      </div>
     </div>
   )
 }

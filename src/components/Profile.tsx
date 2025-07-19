@@ -56,7 +56,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="p-8 bg-gray-50/30 h-[91vh] w-full  overflow-y-scroll">
+    <div className="p-8 bg-gray-50/30 h-[calc(100vh-49px)] w-full  overflow-y-scroll">
       <div className="max-w-6xl mx-auto space-y-8 ">
         {/* Header Section */}
         <div className="flex items-center justify-between">
