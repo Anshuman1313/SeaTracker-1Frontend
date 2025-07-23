@@ -5,7 +5,6 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useForm, type SubmitHandler } from "react-hook-form"
 import { useState } from "react"
-import { axios_service_get } from "@/services/axios-services"
 import { Eye, EyeOff } from 'lucide-react';
 import api from "@/api/axiosInstance"
 import { useAuth } from "@/auth/AuthContext"
@@ -15,8 +14,6 @@ interface InputFormEmail {
   email: string,
   password: string
 }
-let res =axios_service_get("Employees");
-window.console.log(res);
 
 
 export default function SignInPage() {

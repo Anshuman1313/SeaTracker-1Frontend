@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const role =
         decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ;
 
-      console.log("Decoded JWT:", decoded);
+      // console.log("Decoded JWT:", decoded);
       return role === 'Admin';
     } catch (error) {
       console.error('Invalid token:', error);

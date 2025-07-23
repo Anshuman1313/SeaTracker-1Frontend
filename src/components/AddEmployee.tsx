@@ -1,4 +1,10 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
@@ -12,17 +18,24 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "./ui/avatar"
 import { Upload, User, X } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select"
 import { useState } from "react"
 import api from "@/api/axiosInstance"
-
-
+import { toast } from "sonner"
 
 const formSchema = z.object({
- 
-
   firstName: z.string().min(3, "First name must be at least 2 characters"),
   lastName: z.string().min(3, "Last name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
@@ -30,8 +43,9 @@ const formSchema = z.object({
   department: z.string().min(1, "Please select a department"),
   designation: z.string().min(2, "Designation must be at least 2 characters"),
   externalId: z.string().min(1, "External ID is required"),
-
+  imageBase64: z.string(),
 })
+
 const departments = [
   "Human Resources",
   "Engineering",
@@ -46,57 +60,135 @@ const departments = [
 ]
 
 const AddEmployee = () => {
-    const [isSubmitting, setIsSubmitting] = useState(false)
-  //defining my form 
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-   
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
+      firstName: "Anshuman",
+      lastName: "Rana",
+      email: "12@gmail.com",
+      phone: "213123312123",
       department: "",
-      designation: "",
-      externalId: "",
-    }
+      designation: "It Intern",
+      externalId: "3423414",
+      imageBase64: "",
+    },
   })
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    try{
 
-      setIsSubmitting(true);
-      console.log(values, "submitted")
-          const res = await api.post('/Employees',values);
-          
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    debugger
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast("File too large", {
+        description: "Please select an image smaller than 5MB",
+      })
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast("Invalid file type", {
+        description: "Please select a valid image file",
+      })
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      const base64String = reader.result as string
+      setImagePreview(base64String)
+      form.setValue("imageBase64", base64String)
+    }
+
+    reader.readAsDataURL(file)
+  }
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setIsSubmitting(true)
+
+      if (!values.imageBase64) {
+        toast("No image uploaded", {
+          description: "No image is being uploaded.",
+        })
+        
+      }
+
+      console.log("Submitted values:", values)
+
+      const res = await api.post('/Employees', values)
       console.log(res.data)
       // form.reset()
-    }
-    catch(error){
-      console.log(error,"error hai bhai")
-    }
-    finally{
+      // setImagePreview(null)
+    } catch (error) {
+      console.error("Submission error:", error)
+    } finally {
       setIsSubmitting(false)
     }
   }
 
-  
+  const removeImage = () => {
+    setImagePreview(null)
+    form.setValue("imageBase64", "")
+  }
 
   return (
-    <div className="w-full  h-[calc(100vh-49px)] pt-8">
-      <div className='mx-[4vw]'>
-
+    <div className="w-full h-[calc(100vh-49px)] pt-8 overflow-y-scroll">
+      <div className="mx-[4vw]">
         <Card>
           <CardHeader>
-
             <CardTitle>Add New Employee</CardTitle>
-            <CardDescription>Fill in the employee details below to add them to the system.</CardDescription>
+            <CardDescription>
+              Fill in the employee details below to add them to the system.
+            </CardDescription>
           </CardHeader>
 
           <CardContent>
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-
-           
+                {/* Profile pic additon */}
+                <div className="flex flex-col items-center space-y-4">
+                  <div className="relative">
+                    <Avatar className="w-24 h-24">
+                      <AvatarImage src={imagePreview || ""} alt="Employee photo" />
+                      <AvatarFallback className="text-lg">
+                        <User className="w-8 h-8" />
+                      </AvatarFallback>
+                    </Avatar>
+                    {imagePreview && (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0"
+                        onClick={removeImage}
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    )}
+                  </div>
+                  <div className="flex flex-col items-center space-y-2">
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      <div className="flex items-center space-x-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg hover:border-gray-400 transition-colors">
+                        <Upload className="w-4 h-4" />
+                        <span className="text-sm">Upload Photo</span>
+                      </div>
+                    </label>
+                    <input
+                      id="image-upload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Max file size: 5MB. Supported formats: JPG, PNG, GIF
+                    </p>
+                  </div>
+                </div>
 
                 {/* Personal Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -160,49 +252,47 @@ const AddEmployee = () => {
                   />
                 </div>
 
-               {/* Work Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 <FormField
-                  control={form.control}
-                  name="designation"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Designation *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter job title/designation" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                   />
-                <FormField
-                  control={form.control}
-                  name="department"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Department *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}  >
-                        <FormControl className="w-full">
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select department"  />
-                          </SelectTrigger>
+                {/* Work Information */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="designation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Designation *</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Enter job title/designation" {...field} />
                         </FormControl>
-                        <SelectContent>
-                          {departments.map((dept) => (
-                            <SelectItem key={dept} value={dept}>
-                              {dept}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="department"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Department *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl className="w-full">
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select department" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {departments.map((dept) => (
+                              <SelectItem key={dept} value={dept}>
+                                {dept}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-               
-               
-              </div>
                 {/* External ID */}
                 <FormField
                   control={form.control}
@@ -217,6 +307,7 @@ const AddEmployee = () => {
                     </FormItem>
                   )}
                 />
+
                 {/* Submit Button */}
                 <div className="flex justify-end space-x-4 pt-6">
                   <Button
@@ -224,7 +315,7 @@ const AddEmployee = () => {
                     variant="outline"
                     onClick={() => {
                       form.reset()
-
+                      setImagePreview(null)
                     }}
                   >
                     Reset Form
@@ -234,14 +325,11 @@ const AddEmployee = () => {
                   </Button>
                 </div>
               </form>
-
             </Form>
-
           </CardContent>
         </Card>
       </div>
     </div>
-
   )
 }
 
