@@ -39,9 +39,10 @@ const formSchema = z.object({
   firstName: z.string().min(3, "First name must be at least 2 characters"),
   lastName: z.string().min(3, "Last name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
-  phone: z.string().min(10, "Phone number must be at least 10 digits"),
+  phone: z.string().min(10, "Phone number must be at least 10 digits")
+  .max(10, "Phone number must be exactly 10 digits"),
   department: z.string().min(1, "Please select a department"),
-  designation: z.string().min(2, "Designation must be at least 2 characters"),
+  designation: z.string().min(1, "Please select a designation"),
   externalId: z.string().min(1, "External ID is required"),
   imageBase64: z.string(),
 })
@@ -58,6 +59,19 @@ const departments = [
   "Product Management",
   "Design",
 ]
+const designations = [
+  "Software Engineer",
+  "Software Developer Intern",
+  "Product Manager",
+  "Sales Executive",
+  "Marketing Specialist",
+  "Finance Analyst",
+  "Legal Advisor",
+  "UI/UX Designer",
+  "Business Development Executive (BDE)",
+  "SQL Developer Intern",
+  "Engineer",
+];
 
 const AddEmployee = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -66,13 +80,13 @@ const AddEmployee = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "Anshuman",
-      lastName: "Rana",
-      email: "12@gmail.com",
-      phone: "213123312123",
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
       department: "",
-      designation: "It Intern",
-      externalId: "3423414",
+      designation: "",
+      externalId: "",
       imageBase64: "",
     },
   })
@@ -110,21 +124,29 @@ const AddEmployee = () => {
     try {
       setIsSubmitting(true)
 
+
       if (!values.imageBase64) {
-        toast("No image uploaded", {
-          description: "No image is being uploaded.",
-        })
-        
+        toast("No image uploaded")
       }
 
       console.log("Submitted values:", values)
 
       const res = await api.post('/Employees', values)
       console.log(res.data)
-      // form.reset()
-      // setImagePreview(null)
+      form.reset()
+      setImagePreview(null)
+      toast.success("Success!", {
+        description: "Employee added  successfuly.",
+        style: {
+          backgroundColor: "#dcfce7", // light green
+          color: "#166534", // dark green text
+        }
+      })
+
     } catch (error) {
-      console.error("Submission error:", error)
+      toast.error("Something went wrong", {
+        description: `${error}`
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -244,7 +266,7 @@ const AddEmployee = () => {
                       <FormItem>
                         <FormLabel>Phone Number *</FormLabel>
                         <FormControl>
-                          <Input type="tel" placeholder="Enter phone number" {...field} />
+                          <Input type="tel" maxLength={10} placeholder="Enter phone number" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -254,19 +276,6 @@ const AddEmployee = () => {
 
                 {/* Work Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="designation"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Designation *</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter job title/designation" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="department"
@@ -283,6 +292,30 @@ const AddEmployee = () => {
                             {departments.map((dept) => (
                               <SelectItem key={dept} value={dept}>
                                 {dept}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                    <FormField
+                    control={form.control}
+                    name="designation"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Designation *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl className="w-full">
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select designation" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {designations.map((desig) => (
+                              <SelectItem key={desig} value={desig}>
+                                {desig}
                               </SelectItem>
                             ))}
                           </SelectContent>

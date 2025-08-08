@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useForm, type SubmitHandler } from "react-hook-form"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Eye, EyeOff } from 'lucide-react';
 import api from "@/api/axiosInstance"
 import { useAuth } from "@/auth/AuthContext"
@@ -19,15 +19,37 @@ interface InputFormEmail {
 export default function SignInPage() {
   const { register, handleSubmit, formState: { errors } } = useForm<InputFormEmail>()
   const {login} = useAuth();
+  const {userRole,isAuthenticated} = useAuth();
   const navigate = useNavigate();
+  useEffect(() => {
+  if (isAuthenticated && userRole) {
+    if (userRole === 'Admin') navigate('/allemployee');
+    else if (userRole === 'Employee') navigate('/attendance');
+    else navigate('/unauthorized');
+  }
+}, [userRole, isAuthenticated]);
+
   const onsubmit: SubmitHandler<InputFormEmail> = async (data) => {
+    
     try{
       let username = data.email;
       let password = data.password;
       const res = await api.post('/Auth/login',{username,password});
       const token = res.data.authToken;
       login(token);
-      navigate('/allemployee');
+        // navigate('/allemployee');
+      // console.log(userRole,userRole)
+      // console.log(res.data.role)
+      // if(userRole == 'Admin'){
+
+      //   navigate('/allemployee');
+      // }
+      // else if(userRole == 'Employee'){
+      //     navigate('/attendance')
+      // }
+      // else{
+      //   navigate('/unauthorized')
+      // }
       console.log("Logged in")
     }
     catch (error){
@@ -37,7 +59,7 @@ export default function SignInPage() {
   }
   const [pwdFlag, setPwdFlag] = useState(false) //flag to show password the eye icon
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-blue-200 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl">
         <CardHeader className="text-center">
           <div className="flex justify-center h-[100px]">
