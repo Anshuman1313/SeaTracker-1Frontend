@@ -2,7 +2,8 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { jwtDecode } from 'jwt-decode';
 
 interface JwtPayload {
-  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"?: string;
+  "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"?: string,
+  "EmployeeId"?: string
 }
 
 interface AuthContextType {
@@ -10,6 +11,8 @@ interface AuthContextType {
   login: (token: string) => void;
   logout: () => void;
   isAuthenticated: boolean;
+  userRole : string | null;
+  EmployeeId: string | undefined;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,43 +20,61 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [EmployeeId, setEmployeeId] = useState<string | undefined>("Intial render")
 
-  const checkIfAdmin = (token: string) => {
-    try {
-      const decoded = jwtDecode<JwtPayload>(token);
-      const role =
-        decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] ;
-
-      // console.log("Decoded JWT:", decoded);
-      return role === 'Admin';
-    } catch (error) {
-      console.error('Invalid token:', error);
-      return false;
-    }
-  };
-
-  useEffect(() => {
-    if (token && typeof token === 'string') {
-      const isAdmin = checkIfAdmin(token);
-      setIsAuthenticated(isAdmin);
-    }
-  }, [token]);
+    useEffect(() => {
+     if (token && typeof token === 'string') {
+      try {
+        const decoded = jwtDecode<JwtPayload>(token);
+        const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+        const EmplyId = decoded["EmployeeId"];
+        if (role) {
+          setUserRole(role);
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+            if (EmplyId) {
+        setEmployeeId(EmplyId); // setting emly id so for reload it still hold
+      }
+      } catch (error) {
+        console.error('Invalid token:', error);
+        setIsAuthenticated(false);
+      }
+     }
+    }, [token])
+    
 
   const login = (newToken: string) => {
     localStorage.setItem('token', newToken);
     setToken(newToken);
-    const isAdmin = checkIfAdmin(newToken);
-    setIsAuthenticated(isAdmin);
+     try {
+      const decoded = jwtDecode<JwtPayload>(newToken);
+      const role = decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+      const EmplyId = decoded["EmployeeId"];
+     
+      if (role) {
+        setUserRole(role);
+        setIsAuthenticated(true);
+      }
+          if (EmplyId) {
+        setEmployeeId(EmplyId); 
+      }
+    } catch (error) {
+      console.error('Invalid token:', error);
+    }
   };
 
   const logout = () => {
     setToken(null);
+    setUserRole(null)
     setIsAuthenticated(false);
     localStorage.removeItem('token');
   };
 
   return (
-    <AuthContext.Provider value={{ token, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ token, login, logout, isAuthenticated,userRole,EmployeeId }}>
       {children}
     </AuthContext.Provider>
   );
