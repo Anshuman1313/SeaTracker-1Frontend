@@ -28,11 +28,11 @@ type Employee = {
   avatar: string
   [key: string]: string | number // Add index signature
 }
-type SortField = "name" | "designation" | "status" | "email" | "phone" | "department" | "joiningDate"
+type SortField = "firstName" | "designation" | "status" | "email" | "phone" | "department" 
 
 export default function AllEmployee() {
   const [employees, setEmployees] = useState<Employee[]>([])
-  const [sortField, setSortField] = useState<SortField>("name")
+  const [sortField, setSortField] = useState<SortField>("firstName")
   const [currentPage, setCurrentPage] = useState(1)
   const [search, setsearch] = useState("")
   const [showViewModal, setShowViewModal] = useState(false)
@@ -78,24 +78,23 @@ export default function AllEmployee() {
 
   }, [search])
 
-  const sortedEmployees = [...employees].sort((a, b) => {
-    const aValue = a[sortField] || ""
-    const bValue = b[sortField] || ""
-
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return aValue.localeCompare(bValue)
-    }
-
-    return 0
-  })
-
   const pagination = function (array: Employee[], currentpage: number, pagesize: number): Employee[] {
     let startIndex = (currentpage - 1) * pagesize;
     let endIndex = startIndex + pagesize;
     return array.slice(startIndex, endIndex);
   }
 
-  const filteredEmployees = employees.filter((e) => {
+  const filteredEmployees = employees.sort((a, b) => {
+        const fieldA = a[sortField]?.toLowerCase?.() ?? "";
+        // console.log(fieldA,"fieldA")
+        // console.log(a[sortField] , "whithot lowercase")
+        const fieldB = b[sortField]?.toLowerCase?.() ?? "";
+        //   console.log(fieldB,"fieldb")
+        // console.log(b[sortField] , "whithot lowercase")
+        
+        return fieldA.localeCompare(fieldB);
+    }
+    ).filter((e) => {
     let fullname = e.firstName + " " + e.lastName;
     return fullname.toLowerCase().includes(search.toLowerCase())
   }
@@ -144,13 +143,12 @@ export default function AllEmployee() {
             <SelectValue placeholder="Select field" />
           </SelectTrigger>
           <SelectContent className="opacity-100 bg-white">
-            <SelectItem value="name" >Name</SelectItem>
+            <SelectItem value="firstName" >Name</SelectItem>
             <SelectItem value="designation">Designation</SelectItem>
             <SelectItem value="status">Status</SelectItem>
             <SelectItem value="email">Email</SelectItem>
             <SelectItem value="phone">Mobile Number</SelectItem>
             <SelectItem value="department">Department</SelectItem>
-            <SelectItem value="joiningDate">Applied On</SelectItem>
           </SelectContent>
         </Select>
 

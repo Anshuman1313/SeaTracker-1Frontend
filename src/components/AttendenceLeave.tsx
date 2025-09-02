@@ -1,14 +1,13 @@
 import React from 'react'
 import { useState } from "react"
-import { Clock, FileText, CheckCircle, XCircle, Send } from "lucide-react"
+import { FileText, CheckCircle, Send } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
+import AttendenceCard from './AttendenceCard'
+import { Input } from './ui/input'
 
 const AttendenceLeave = () => {
   const [attendanceStatus, setAttendanceStatus] = useState<"present" | "absent" | null>(null)
@@ -44,6 +43,7 @@ const AttendenceLeave = () => {
     month: "long",
     day: "numeric",
   })
+
   return (
     <div className="w-full overflow-y-scroll h-[calc(100vh-49px) ] overflow-y-scroll">
       <div className='mx-[4vw]  h-[calc(100vh-49px)]'>
@@ -54,87 +54,10 @@ const AttendenceLeave = () => {
               <h1 className="text-3xl font-bold text-gray-900 mb-2">Attendance & Leave Management</h1>
               <p className="text-gray-600">{currentDate}</p>
             </div>
-
             {/* Dashboard Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Attendance Section */}
-              <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center space-x-2 text-xl">
-                    <Clock className="w-6 h-6 text-blue-600" />
-                    <span>Mark Attendance</span>
-                  </CardTitle>
-                  <CardDescription>Track your daily attendance and working hours</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  {/* Attendance Buttons */}
-                  <div className="flex space-x-4">
-                    <Button
-                      onClick={() => handleMarkAttendance("present")}
-                      className={`flex-1 h-12 ${attendanceStatus === "present"
-                          ? "bg-green-600 hover:bg-green-700"
-                          : "bg-green-500 hover:bg-green-600"
-                        }`}
-                    >
-                      <CheckCircle className="w-5 h-5 mr-2" />
-                      Mark Present
-                    </Button>
-                    <Button
-                      onClick={() => handleMarkAttendance("absent")}
-                      variant="destructive"
-                      className={`flex-1 h-12 ${attendanceStatus === "absent" ? "bg-red-600 hover:bg-red-700" : ""}`}
-                    >
-                      <XCircle className="w-5 h-5 mr-2" />
-                      Mark Absent
-                    </Button>
-                  </div>
-
-                  {/* Time Fields */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="login-time">Login Time</Label>
-                      <Input
-                        id="login-time"
-                        type="time"
-                        value={loginTime}
-                        onChange={(e) => setLoginTime(e.target.value)}
-                        className="bg-gray-50"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="logout-time">Logout Time</Label>
-                      <Input
-                        id="logout-time"
-                        type="time"
-                        value={logoutTime}
-                        onChange={(e) => setLogoutTime(e.target.value)}
-                        className="bg-gray-50"
-                      />
-                    </div>
-                  </div>
-
-                  <Separator />
-
-                  {/* Status Display */}
-                  <div className="text-center py-4">
-                    {attendanceStatus === "present" && (
-                      <Badge className="bg-green-100 text-green-800 px-4 py-2 text-sm">
-                        ✅ You are marked Present for today
-                      </Badge>
-                    )}
-                    {attendanceStatus === "absent" && (
-                      <Badge className="bg-red-100 text-red-800 px-4 py-2 text-sm">
-                        ❌ You are marked Absent for today
-                      </Badge>
-                    )}
-                    {!attendanceStatus && (
-                      <Badge variant="outline" className="px-4 py-2 text-sm">
-                        Please mark your attendance for today
-                      </Badge>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
+              <AttendenceCard employeeId='D733DF69-DE01-4F3F-A207-4D111F9F1E64' />
+         
 
               {/* Leave Section */}
               <Card className="shadow-lg border-0 bg-white/80 backdrop-blur-sm">
